@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>單字核心 · 英文單字學習系統</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap">
+<style>
+:root{--bg:#050b1a;--panel:rgba(12,24,48,.72);--in:#071126;--text:#e8f1ff;--mut:#7f95b8;--acc:#22e4ff;--acc2:#8b5cf6;--ok:#34f5a0;--warn:#ffc552;--bad:#ff5c7a;--line:rgba(34,228,255,.28);--grid:rgba(34,228,255,.06);color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eaf2fb;--panel:rgba(255,255,255,.82);--in:#f3f8ff;--text:#0b1d3a;--mut:#51698c;--acc:#0079b8;--acc2:#6d3fe0;--ok:#06935a;--warn:#b86e00;--bad:#d1294a;--line:rgba(0,121,184,.35);--grid:rgba(0,121,184,.07);color-scheme:light}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(24px + env(safe-area-inset-bottom,0px));font-family:"Microsoft JhengHei","PingFang TC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(900px 500px at 85% -10%,rgba(139,92,246,.28),transparent 60%),radial-gradient(700px 500px at -10% 30%,rgba(34,228,255,.18),transparent 60%),linear-gradient(var(--grid) 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/34px 34px,var(--bg);-webkit-tap-highlight-color:transparent}
+svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:500px;margin:0 auto}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.top .logo{width:46px;height:46px;flex:none;filter:drop-shadow(0 0 8px var(--acc))}
+.top h1{margin:0;font:700 19px/1.2 Orbitron,"Microsoft JhengHei",sans-serif;letter-spacing:.06em}
+.top small{color:var(--mut);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr) 64px;gap:8px;align-items:center;margin-bottom:12px}
+.st{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;backdrop-filter:blur(8px)}
+.st b{display:block;font:700 20px/1.2 Orbitron,sans-serif;color:var(--acc)}
+.st span{font-size:11px;color:var(--mut)}
+.st.ok b{color:var(--ok)}
+.ring{position:relative;width:64px;height:64px}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:5}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:url(#rg);stroke-linecap:round;stroke-dasharray:163.4;stroke-dashoffset:163.4;transition:stroke-dashoffset .6s ease;filter:drop-shadow(0 0 4px var(--acc))}
+.ring em{position:absolute;inset:0;display:grid;place-items:center;font:700 13px Orbitron,sans-serif;font-style:normal}
+.nav{display:flex;gap:6px;margin-bottom:12px}
+.nav button{flex:1;display:flex;gap:6px;align-items:center;justify-content:center;padding:10px 4px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--mut);font-size:14px;cursor:pointer;transition:.2s}
+.nav button.on{color:#021426;font-weight:700;background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;box-shadow:0 0 18px rgba(34,228,255,.4)}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 16px;backdrop-filter:blur(10px);box-shadow:0 20px 50px -20px rgba(0,0,0,.6),inset 0 0 40px rgba(34,228,255,.05)}
+.card::before,.card::after{content:"";position:absolute;width:20px;height:20px;border:2px solid var(--acc);pointer-events:none}
+.card::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:18px}
+.card::after{right:-1px;bottom:-1px;border-left:0;border-top:0;border-bottom-right-radius:18px}
+.pane{display:none}.pane.on{display:block}
+.hero{text-align:center}
+.hero svg.big{width:150px;height:150px;margin:0 auto 6px;display:block;filter:drop-shadow(0 0 16px rgba(34,228,255,.55))}
+.hero .ring1{transform-origin:50px 50px;animation:spin 18s linear infinite}
+.hero .ring2{transform-origin:50px 50px;animation:spin 11s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero h2{margin:4px 0 4px;font:700 22px Orbitron,"Microsoft JhengHei",sans-serif;letter-spacing:.05em}
+.hero p{margin:0 0 16px;color:var(--mut);font-size:13px}
+.box{border:1px dashed var(--line);background:var(--in);border-radius:14px;padding:14px;margin-bottom:12px;text-align:left}
+.box .t{display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:8px}
+.box .t svg{color:var(--acc)}
+.box small{color:var(--mut);font-size:12px;display:block;margin-top:8px}
+.box input{display:none}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:8px 14px;border-radius:10px;border:1px solid var(--line);color:var(--acc);cursor:pointer;font-size:14px}
+select{width:100%;padding:12px;border-radius:12px;background:var(--in);color:var(--text);border:1px solid var(--line);font-size:14px;margin-bottom:12px}
+.b{display:inline-flex;gap:7px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:12px;padding:12px 10px;font-size:15px;font-weight:600;cursor:pointer;color:var(--text);background:var(--in);border-color:var(--line);transition:transform .1s}
+.b:active{transform:scale(.96)}
+.b:focus-visible,.nav button:focus-visible,.chip:focus-within{outline:2px solid var(--acc);outline-offset:2px}
+.b.go{width:100%;padding:15px;font-size:17px;color:#021426;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 0 22px rgba(34,228,255,.4)}
+.b.ok{background:var(--ok);color:#03281a}
+.b.wr{background:var(--warn);color:#2a1a00}
+.b.stop{color:var(--bad);border-color:var(--bad)}
+.b.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+.row{display:flex;gap:8px;margin-top:10px}.row .b{flex:1}
+.lv{display:inline-block;padding:4px 14px;border-radius:99px;font-size:12px;color:var(--acc);border:1px solid var(--line);background:var(--in)}
+.word{margin:12px 0 4px;text-align:center;font:700 40px/1.15 Orbitron,"Segoe UI",sans-serif;letter-spacing:.02em;word-break:break-word;background:linear-gradient(90deg,var(--text),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px rgba(34,228,255,.25)}
+.ipa{text-align:center;color:var(--mut);font-size:17px;min-height:24px;margin-bottom:10px}
+.zh{text-align:center;color:var(--warn);font-size:22px;min-height:32px;margin-bottom:8px;opacity:0;transform:translateY(4px);transition:.25s}
+.zh.show{opacity:1;transform:none}
+.au{text-align:center;color:var(--acc);font-size:12px;min-height:18px}
+.ex{background:var(--in);border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0;font-size:15px;line-height:1.55}
+.ex .h{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:12px;margin-bottom:6px}
+.rv{text-align:center;color:var(--mut);font-size:12px;margin-top:8px;min-height:16px}
+.item{display:flex;align-items:center;gap:10px;background:var(--in);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.item div{flex:1;min-width:0}
+.item .en{font-weight:700;color:var(--acc);font-size:16px}.item .en i{font-style:normal;color:var(--mut);font-size:12px;margin-left:6px;font-weight:400}
+.item .cn{color:var(--mut);font-size:13px;margin-top:2px}
+.empty{text-align:center;color:var(--mut);padding:18px 0;font-size:14px}
+h3{margin:0 0 12px;display:flex;gap:8px;align-items:center;font-size:16px}
+.fin{text-align:center}.fin svg.i{width:56px;height:56px;color:var(--ok);filter:drop-shadow(0 0 12px var(--ok))}
+.keys{text-align:center;color:var(--mut);font-size:11px;margin-top:10px}
+.qz{display:grid;grid-template-columns:46% 1fr;gap:10px;align-items:center;margin:10px 0 6px}
+.opts{display:grid;gap:6px}
+.opt{padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--in);color:var(--text);font-size:14px;line-height:1.3;cursor:pointer;word-break:break-word;transition:.15s}
+.opt:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.opt.right{background:var(--ok);color:#03281a;border-color:transparent;font-weight:700}
+.opt.wrong{background:var(--bad);color:#fff;border-color:transparent}
+.qz{grid-template-columns:fit-content(45%) 1fr;margin-left:-8px}
+.qz .opts{gap:4px;justify-items:start}
+.qz .opt{text-align:left;padding:4px 6px;font-size:13px;line-height:1.2;border-radius:6px;max-width:100%}
+.qz>div:last-child{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 4px}
+.qz .word{font:700 clamp(22px,7vw,32px)/1.2 "Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif;letter-spacing:0;margin:0 0 4px;background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--text);text-shadow:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22e4ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+<symbol id="i-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-redo" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-vol" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19 5a10 10 0 0 1 0 14M15.5 8.5a5 5 0 0 1 0 7"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></symbol>
+</defs>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,5 90,27 90,73 50,95 10,73 10,27" fill="rgba(34,228,255,.08)" stroke="url(#g1)" stroke-width="4"/><path d="M28 36q11-5 22 2 11-7 22-2v28q-11-5-22 2-11-7-22-2z" fill="none" stroke="url(#g1)" stroke-width="4" stroke-linejoin="round"/><path d="M50 38v28" stroke="url(#g1)" stroke-width="4"/></svg>
+    <div><h1>VOCAB·CORE</h1><small>單字核心 · 英文單字學習系統</small></div>
+  </div>
+
+  <div class="stats">
+    <div class="st"><b id="tot">0</b><span>總單字</span></div>
+    <div class="st ok"><b id="lrn">0</b><span>已學會</span></div>
+    <div class="st"><b id="rem">0</b><span>剩餘</span></div>
+    <div class="ring"><svg viewBox="0 0 64 64"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22e4ff"/><stop offset="1" stop-color="#34f5a0"/></linearGradient></defs><circle class="bg" cx="32" cy="32" r="26"/><circle class="fg" id="fg" cx="32" cy="32" r="26"/></svg><em id="pct">0%</em></div>
+  </div>
+
+  <div class="nav" role="tablist">
+    <button id="nLearn" class="on" data-p="learn"><svg class="i"><use href="#i-zap"/></svg>學習</button>
+    <button id="nLearned" data-p="learned"><svg class="i"><use href="#i-trophy"/></svg>已學會</button>
+    <button id="nReview" data-p="review"><svg class="i"><use href="#i-redo"/></svg>再學習</button>
+  </div>
+
+  <div class="card">
+    <!-- 開始 -->
+    <div id="pStart" class="pane on hero">
+      <svg class="big" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring1" cx="50" cy="50" r="47" fill="none" stroke="url(#g1)" stroke-width="1.5" stroke-dasharray="3 7"/>
+        <circle class="ring2" cx="50" cy="50" r="42" fill="none" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="14 10" opacity=".7"/>
+        <polygon points="50,14 80,31 80,69 50,86 20,69 20,31" fill="rgba(34,228,255,.1)" stroke="url(#g1)" stroke-width="3"/>
+        <path d="M33 40q8-4 17 2 9-6 17-2v22q-8-4-17 2-9-6-17-2z" fill="none" stroke="url(#g1)" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M50 42v22" stroke="url(#g1)" stroke-width="3"/>
+        <g fill="#22e4ff"><circle cx="50" cy="3" r="2.5"/><circle cx="92" cy="50" r="2.5"/><circle cx="8" cy="62" r="2.5"/></g>
+      </svg>
+      <h2>開始學習</h2>
+      <p>載入單字表，聽發音、看中文，標記學會或再學習</p>
+      <div class="box">
+        <div class="t"><svg class="i"><use href="#i-up"/></svg>載入單字表（CSV）</div>
+        <label class="chip" for="csv"><svg class="i"><use href="#i-up"/></svg>選擇 CSV 檔案</label>
+        <input type="file" id="csv" accept=".csv,text/csv">
+        <small>欄位順序：單字、音標、中文、分類、例句（至少前 3 欄）</small>
+        <small id="upS">目前使用預設預覽單字</small>
+      </div>
+      <select id="lvSel" aria-label="單字分類"><option value="ALL">全範圍單字</option></select>
+      <button class="b go" id="start"><svg class="i"><use href="#i-play"/></svg>開始學習</button>
+    </div>
+
+    <!-- 學習 -->
+    <div id="pLearn" class="pane">
+      <div style="text-align:center"><span class="lv" id="lv">分類</span></div>
+      <div class="qz">
+        <div class="opts" id="opts" aria-label="選出正確中文"></div>
+        <div><div class="word" id="word">word</div><div class="ipa" id="ipa"></div></div>
+      </div>
+      <div class="zh" id="zh"></div>
+      <div class="au" id="au">循環發音中</div>
+      <div class="ex">
+        <div class="h"><span>例句</span><button class="b sm" id="exBtn"><svg class="i"><use href="#i-vol"/></svg>播放</button></div>
+        <div id="ex"></div>
+      </div>
+      <div class="row">
+        <button class="b" id="showBtn"><svg class="i"><use href="#i-eye"/></svg>顯示中文</button>
+        <button class="b" id="loopBtn"><svg class="i"><use href="#i-pause"/></svg><span>暫停循環</span></button>
+        <button class="b stop" id="endBtn"><svg class="i"><use href="#i-stop"/></svg>結束</button>
+      </div>
+      <div class="row">
+        <button class="b ok" id="okBtn"><svg class="i"><use href="#i-check"/></svg>已學會</button>
+        <button class="b wr" id="rvBtn"><svg class="i"><use href="#i-redo"/></svg>再學習</button>
+      </div>
+      <div class="rv" id="rv"></div>
+      <div class="keys">快捷鍵：空白鍵顯示中文　→ 已學會　← 再學習</div>
+    </div>
+
+    <!-- 已學會 -->
+    <div id="pLearned" class="pane">
+      <h3><svg class="i"><use href="#i-trophy"/></svg>已學會的單字</h3>
+      <div id="lrnList"></div>
+      <button class="b stop sm" id="reset1" style="margin-top:10px"><svg class="i"><use href="#i-trash"/></svg>清空學習紀錄</button>
+    </div>
+
+    <!-- 再學習 -->
+    <div id="pReview" class="pane">
+      <h3><svg class="i"><use href="#i-redo"/></svg>再學習的單字</h3>
+      <div id="rvList"></div>
+    </div>
+
+    <!-- 完成 -->
+    <div id="pFin" class="pane fin">
+      <svg class="i"><use href="#i-trophy"/></svg>
+      <h2 style="color:var(--ok)">全部學會了！</h2>
+      <p style="color:var(--mut)">目前範圍的單字已全部學習完畢。</p>
+      <button class="b stop sm" id="reset2"><svg class="i"><use href="#i-trash"/></svg>清空紀錄重新學習</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.warn(k,e)}};
+
+let raw=[["apple","/ˈæpl/","蘋果","國小","I eat an apple every day."],["banana","/bəˈnænə/","香蕉","國小","Monkeys like to eat bananas."],["book","/bʊk/","書本","國小","She is reading a good book."]];
+const saved=ld("customWords",null);
+if(Array.isArray(saved)&&saved.length){raw=saved;$("upS").textContent=`已載入上次儲存的 ${raw.length} 個單字`}
+let byWord=new Map(),queue=[],started=false,busy=false;
+const learned=new Set(ld("learnedWords",[])),review=new Set(ld("reviewWords",[]));
+let counts=ld("reviewCounts",{});
+const BASE=20,STEP=15;
+let looping=true,gen=0,timer=null;
+
+function index(){byWord=new Map(raw.map(r=>[r[0],r]))}
+function save(){sv("learnedWords",[...learned]);sv("reviewWords",[...review]);sv("reviewCounts",counts)}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ---------- 版面 ---------- */
+const panes={start:$("pStart"),learn:$("pLearn"),learned:$("pLearned"),review:$("pReview"),fin:$("pFin")};
+function show(n){Object.entries(panes).forEach(([k,e])=>e.classList.toggle("on",k===n))}
+function progress(){
+  const t=raw.length,l=learned.size,p=t?Math.round(l/t*100):0;
+  $("tot").textContent=t;$("lrn").textContent=l;$("rem").textContent=queue.length;$("pct").textContent=p+"%";
+  $("fg").style.strokeDashoffset=163.4*(1-p/100);
+}
+function levels(){
+  const s=$("lvSel");s.innerHTML='<option value="ALL">全範圍單字</option>';
+  [...new Set(raw.map(r=>r[3]||"未分類"))].forEach(l=>{const o=document.createElement("option");o.value=l;o.textContent=l;s.appendChild(o)});
+}
+
+/* ---------- CSV ---------- */
+function parseCSV(t){
+  const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<t.length;i++){
+    const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===","){r.push(c);c=""}
+    else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&t[i+1]==="\n")i++;r.push(c);c="";rows.push(r);r=[]}
+    else c+=ch;
+  }
+  r.push(c);rows.push(r);return rows;
+}
+$("csv").addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onerror=()=>alert("檔案讀取失敗，請重新選擇 CSV。");
+  rd.onload=()=>{
+    try{
+      const data=parseCSV(String(rd.result||"").replace(/^\uFEFF/,"")).map(c=>c.map(x=>x.trim()))
+        .filter(c=>c.length>=3&&c[0]).map(c=>[c[0],c[1]||"",c[2]||"",c[3]||"通用",c[4]||""]);
+      if(!data.length){alert("檔案格式不正確或內容為空！");return}
+      raw=data;sv("customWords",raw);index();levels();progress();
+      $("upS").textContent=`✅ 成功匯入 ${raw.length} 個單字！`;
+    }catch(err){console.error(err);alert("CSV 讀取發生錯誤，請確認格式。")}
+  };
+  rd.readAsText(f,"UTF-8");
+});
+
+/* ---------- 語音 ---------- */
+const canSpeak="speechSynthesis" in window;
+function voice(){try{return speechSynthesis.getVoices().find(v=>/^en[-_]US/i.test(v.lang))||null}catch(e){return null}}
+function stopSpeech(){
+  gen++;clearTimeout(timer);timer=null;
+  if(canSpeak)try{speechSynthesis.cancel()}catch(e){}
+}
+function speak(text,onend){
+  const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.9;
+  const v=voice();if(v)u.voice=v;
+  if(onend)u.onend=onend;
+  speechSynthesis.speak(u);
+}
+function loop(text){
+  stopSpeech();
+  if(!looping||!text||!canSpeak)return;
+  const g=++gen;
+  const next=()=>{
+    if(g!==gen||!looping||!queue[0]||queue[0][0]!==text)return;
+    try{speak(text,()=>{if(g===gen)timer=setTimeout(next,2200)})}catch(e){console.warn(e)}
+  };
+  next();
+}
+$("exBtn").onclick=()=>{
+  const t=$("ex").textContent;
+  if(!canSpeak||!t||t==="無例句")return;
+  stopSpeech();
+  try{speak(t,()=>{if(looping&&queue[0]&&$("pLearn").classList.contains("on"))loop(queue[0][0])})}catch(e){}
+};
+$("loopBtn").onclick=()=>{
+  looping=!looping;
+  $("loopBtn").innerHTML=`<svg class="i"><use href="#i-${looping?"pause":"play"}"/></svg><span>${looping?"暫停循環":"恢復循環"}</span>`;
+  $("au").textContent=looping?"循環發音中":"已暫停發音循環";
+  if(looping&&queue[0])loop(queue[0][0]);else stopSpeech();
+};
+
+/* ---------- 學習流程 ---------- */
+function render(){
+  busy=false;
+  if(!queue.length){stopSpeech();show("fin");return}
+  const it=queue[0],w=it[0];
+  $("word").textContent=w;$("ipa").textContent=it[1];$("zh").textContent=it[2];
+  $("lv").textContent=it[3]||"通用";$("ex").textContent=it[4]||"無例句";
+  $("zh").classList.remove("show");
+  buildOpts(it);
+  const c=counts[w]||0;
+  $("rv").textContent=review.has(w)?`此單字已再學習 ${c} 次，系統會降低重複出現頻率`:"";
+  loop(w);
+}
+function buildOpts(it){
+  const box=$("opts"),ans=it[2];
+  box.innerHTML="";delete box.dataset.done;
+  const pool=[...new Set(raw.map(r=>r[2]).filter(x=>x&&x!==ans))];
+  const picks=shuffle(pool).slice(0,5);
+  if(ans)picks.push(ans);
+  shuffle(picks).forEach(t=>{
+    const b=document.createElement("button");b.className="opt";b.textContent=t;
+    b.onclick=()=>{
+      if(box.dataset.done)return;
+      box.dataset.done="1";reveal();
+      b.classList.add(t===ans?"right":"wrong");
+      if(t!==ans)[...box.children].forEach(x=>{if(x.textContent===ans)x.classList.add("right")});
+    };
+    box.appendChild(b);
+  });
+}
+function begin(){
+  stopSpeech();
+  const lv=$("lvSel").value;
+  queue=shuffle(raw.filter(r=>r&&r[0]&&!learned.has(r[0])&&(lv==="ALL"||r[3]===lv)));
+  started=true;busy=false;progress();
+  if(!queue.length){show("fin");return}
+  show("learn");render();
+}
+function reveal(){$("zh").classList.add("show")}
+function mark(kind){
+  if(busy||!queue.length)return;
+  busy=true;reveal();
+  const w=queue[0][0];
+  if(kind==="ok"){learned.add(w);review.delete(w);delete counts[w]}
+  else{counts[w]=(counts[w]||0)+1;review.add(w)}
+  save();stopSpeech();
+  setTimeout(()=>{
+    const it=queue.shift();
+    if(kind==="rv"){queue.splice(Math.min(BASE+(counts[w]-1)*STEP,queue.length),0,it)}
+    progress();render();
+  },kind==="rv"?800:500);
+}
+function end(){stopSpeech();started=false;busy=false;queue=[];progress();setNav("learn");show("start")}
+function setNav(p){
+  [["learn","nLearn"],["learned","nLearned"],["review","nReview"]].forEach(([k,id])=>$(id).classList.toggle("on",k===p));
+}
+
+/* ---------- 清單 ---------- */
+function list(id,set,kind){
+  const box=$(id);box.innerHTML="";
+  const names=[...set].filter(n=>byWord.has(n));
+  if(!names.length){box.innerHTML='<div class="empty">尚無資料</div>';return}
+  names.forEach(n=>{
+    const r=byWord.get(n),d=document.createElement("div");d.className="item";
+    const m=document.createElement("div"),en=document.createElement("div"),i=document.createElement("i"),cn=document.createElement("div");
+    en.className="en";en.textContent=r[0];i.textContent=r[1];en.appendChild(i);
+    cn.className="cn";cn.textContent=r[2]+(kind==="rv"&&counts[n]?`（再學習 ${counts[n]} 次）`:"");
+    m.append(en,cn);
+    const b=document.createElement("button");b.className="b sm";b.title="移出清單";b.setAttribute("aria-label","移出清單");
+    b.innerHTML='<svg class="i"><use href="#i-undo"/></svg>';
+    b.onclick=()=>{set.delete(n);if(kind==="rv")delete counts[n];save();progress();list(id,set,kind)};
+    d.append(m,b);box.appendChild(d);
+  });
+}
+function page(p){
+  stopSpeech();setNav(p);
+  if(p==="learn"){
+    if(!started)show("start");
+    else if(!queue.length)show("fin");
+    else{show("learn");render()}
+  }else if(p==="learned"){list("lrnList",learned,"ok");show("learned")}
+  else{list("rvList",review,"rv");show("review")}
+}
+function reset(){
+  if(!confirm("確定要清除學習紀錄嗎？\n\n上傳的單字庫會保留。"))return;
+  ["learnedWords","reviewWords","reviewCounts"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  learned.clear();review.clear();counts={};
+  end();
+}
+
+/* ---------- 事件 ---------- */
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>page(b.dataset.p));
+$("start").onclick=()=>{try{begin()}catch(e){console.error(e);alert("開始學習時發生錯誤，請重新整理頁面再試一次。")}};
+$("showBtn").onclick=reveal;
+$("okBtn").onclick=()=>mark("ok");
+$("rvBtn").onclick=()=>mark("rv");
+$("endBtn").onclick=end;
+$("reset1").onclick=reset;$("reset2").onclick=reset;
+document.addEventListener("keydown",e=>{
+  if(!panes.learn.classList.contains("on")||e.target.tagName==="SELECT")return;
+  if(e.key===" "){e.preventDefault();reveal()}
+  else if(e.key==="ArrowRight")mark("ok");
+  else if(e.key==="ArrowLeft")mark("rv");
+});
+if(canSpeak)try{speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+
+index();levels();progress();
+</script>
+</body>
+</html>
